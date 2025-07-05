@@ -1,0 +1,37 @@
+<h1><%= file.title %></h1>
+<h3><%= file.header %></h3>
+<p>Owned by: <%= file.owner.displayName %></p>
+
+<textarea id="file-body" rows="10" cols="80"><%= file.body %></textarea>
+<p id="status" style="color: gray;"></p>
+
+<script>
+  const textarea = document.getElementById('file-body');
+  const status = document.getElementById('status');
+
+  let timeout = null;
+
+  textarea.addEventListener('blur', () => {
+    const updatedBody = textarea.value;
+
+    fetch(`/file/<%= file._id %>/edit`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ body: updatedBody })
+    })
+    .then(res => {
+      if (res.ok) {
+        status.textContent = 'Saved!';
+        setTimeout(() => status.textContent = '', 1000);
+      } else {
+        status.textContent = 'Error saving.';
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      status.textContent = 'Save failed.';
+    });
+  });
+</script>

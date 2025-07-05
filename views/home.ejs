@@ -4,9 +4,16 @@
   <title>Profile</title>
 </head>
 <body>
-  <h1>Google Profile</h1>
-  <p>Name: <%= user.displayName %></p>
-  <br><br>
+<h1>Welcome, <%= user.displayName %></h1>
+
+<a href="/file/new">Create New File</a>
+
+<ul>
+  <% files.forEach(file => { %>
+    <li><a href="/file/<%= file._id %>"><%= file.title %></a></li>
+  <% }) %>
+</ul>
+
   <a href="/logout">Logout</a>
 </body>
 </html>
