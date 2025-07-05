@@ -14,7 +14,7 @@ router.get("/", (req, res) => {
 // Start Google OAuth
 router.get(
   "/auth/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
+  passport.authenticate("google", { scope: ["profile", "email"] }),
 );
 
 // Google OAuth callback
@@ -23,7 +23,7 @@ router.get(
   passport.authenticate("google", { failureRedirect: "/" }),
   (req, res) => {
     res.redirect("/home");
-  }
+  },
 );
 
 // Logout

@@ -4,17 +4,34 @@
 
 <textarea id="file-body" rows="10" cols="80"><%= file.body %></textarea>
 <p id="status" style="color: gray;"></p>
+<div id="users" style="margin-top: 20px;">
+  <strong>Live Users:</strong>
+  <ul id="user-list"></ul>
+</div>
 
 <!-- Socket.IO -->
 <script src="/socket.io/socket.io.js"></script>
 <script>
   const textarea = document.getElementById('file-body');
-  const status = document.getElementById('status');
-  const socket = io();
-  const fileId = "<%= file._id %>";
+const status = document.getElementById('status');
+const socket = io();
+const fileId = "<%= file._id %>";
+const userName = "<%= user?.displayName || 'Guest' %>"; // fallback for anonymous
 
-  // Join file room
-  socket.emit('join-file', fileId);
+// Join file room with name
+socket.emit('join-file', { fileId, userName });
+
+// Update user list UI
+socket.on('users-update', (names) => {
+  const list = document.getElementById('user-list');
+  list.innerHTML = '';
+  names.forEach(name => {
+    const li = document.createElement('li');
+    li.textContent = name;
+    list.appendChild(li);
+  });
+});
+
 
   // Emit changes on input
   textarea.addEventListener('input', () => {
@@ -22,10 +39,6 @@
     socket.emit('edit-body', { fileId, newBody });
   });
 
-  // Receive updates
-  socket.on('body-updated', (newBody) => {
-    textarea.value = newBody;
-  });
 
   // Save to DB on blur
   textarea.addEventListener('blur', () => {
