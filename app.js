@@ -1,3 +1,6 @@
+const http = require('http');
+const { Server } = require('socket.io');
+
 require('dotenv').config();
 
 const mongoose = require('mongoose');
@@ -13,6 +16,35 @@ const setupPassport = require('./utils/passport');
 const bodyParser = require("body-parser");
 
 const app = express();
+
+const server = http.createServer(app); //  create raw server
+const io = new Server(server);         //  initialize socket server
+
+// Share io globally if needed
+app.set('io', io);
+
+// Socket.IO logic
+io.on('connection', (socket) => {
+  console.log('User connected');
+
+  // Join room for specific file ID
+  socket.on('join-file', (fileId) => {
+    socket.join(fileId);
+  });
+
+  // Handle body change
+  socket.on('edit-body', ({ fileId, newBody }) => {
+    // Broadcast to everyone else in the room
+    socket.to(fileId).emit('body-updated', newBody);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('User disconnected');
+  });
+});
+
+
+
 
 // Setup EJS
 app.set("view engine", "ejs");
@@ -50,4 +82,4 @@ function ensureAuth(req, res, next) {
 }
 
 // Start server
-app.listen(3000, () => console.log("Server: http://localhost:3000"));
+server.listen(3000, () => console.log("Server: http://localhost:3000"));

@@ -5,16 +5,33 @@
 <textarea id="file-body" rows="10" cols="80"><%= file.body %></textarea>
 <p id="status" style="color: gray;"></p>
 
+<!-- Socket.IO -->
+<script src="/socket.io/socket.io.js"></script>
 <script>
   const textarea = document.getElementById('file-body');
   const status = document.getElementById('status');
+  const socket = io();
+  const fileId = "<%= file._id %>";
 
-  let timeout = null;
+  // Join file room
+  socket.emit('join-file', fileId);
 
+  // Emit changes on input
+  textarea.addEventListener('input', () => {
+    const newBody = textarea.value;
+    socket.emit('edit-body', { fileId, newBody });
+  });
+
+  // Receive updates
+  socket.on('body-updated', (newBody) => {
+    textarea.value = newBody;
+  });
+
+  // Save to DB on blur
   textarea.addEventListener('blur', () => {
     const updatedBody = textarea.value;
 
-    fetch(`/file/<%= file._id %>/edit`, {
+    fetch(`/file/${fileId}/edit`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
