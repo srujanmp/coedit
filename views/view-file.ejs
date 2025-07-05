@@ -1,67 +1,85 @@
 <h1><%= file.title %></h1>
 <h3><%= file.header %></h3>
-<p>Owned by: <%= file.owner.displayName %></p>
+<p>Owner: <%= file.owner.displayName %></p>
 
 <textarea id="file-body" rows="10" cols="80"><%= file.body %></textarea>
-<p id="status" style="color: gray;"></p>
-<div id="users" style="margin-top: 20px;">
+<p id="status" style="color: gray">Status:</p>
+<div id="users" style="margin-top: 20px">
   <strong>Live Users:</strong>
   <ul id="user-list"></ul>
 </div>
+<p id="global-count" style="color: gray; margin-top: 10px"></p>
 
 <!-- Socket.IO -->
 <script src="/socket.io/socket.io.js"></script>
 <script>
-  const textarea = document.getElementById('file-body');
-const status = document.getElementById('status');
-const socket = io();
-const fileId = "<%= file._id %>";
-const userName = "<%= user?.displayName || 'Guest' %>"; // fallback for anonymous
+  const textarea = document.getElementById("file-body");
+  const status = document.getElementById("status");
+  const socket = io();
+  const fileId = "<%= file._id %>";
+  const userName = "<%= user?.displayName || 'Guest' %>"; // fallback for anonymous
 
-// Join file room with name
-socket.emit('join-file', { fileId, userName });
+  // Join file room with name
+  socket.emit("join-file", { fileId, userName });
 
-// Update user list UI
-socket.on('users-update', (names) => {
-  const list = document.getElementById('user-list');
-  list.innerHTML = '';
-  names.forEach(name => {
-    const li = document.createElement('li');
-    li.textContent = name;
-    list.appendChild(li);
+  // Update user list UI
+  socket.on("users-update", (names) => {
+    const list = document.getElementById("user-list");
+    list.innerHTML = "";
+    names.forEach((name) => {
+      const li = document.createElement("li");
+      li.textContent = name;
+      list.appendChild(li);
+    });
   });
-});
-
 
   // Emit changes on input
-  textarea.addEventListener('input', () => {
+  textarea.addEventListener("input", () => {
     const newBody = textarea.value;
-    socket.emit('edit-body', { fileId, newBody });
+    socket.emit("edit-body", { fileId, newBody });
   });
 
+  // ✅ Listen for updates from other users
+  socket.on("body-updated", (newBody) => {
+    textarea.value = newBody;
+  });
 
   // Save to DB on blur
-  textarea.addEventListener('blur', () => {
+  textarea.addEventListener("blur", () => {
     const updatedBody = textarea.value;
 
     fetch(`/file/${fileId}/edit`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({ body: updatedBody })
+      body: JSON.stringify({ body: updatedBody }),
     })
-    .then(res => {
-      if (res.ok) {
-        status.textContent = 'Saved!';
-        setTimeout(() => status.textContent = '', 1000);
-      } else {
-        status.textContent = 'Error saving.';
-      }
-    })
-    .catch(err => {
-      console.error(err);
-      status.textContent = 'Save failed.';
-    });
+      .then((res) => {
+        if (res.ok) {
+          status.textContent = "Status: Saved";
+          setTimeout(() => (status.textContent = "Status:"), 1200);
+        } else {
+          status.textContent = "Error saving.";
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        status.textContent = "Status: Save failed";
+      });
+  });
+
+  let debounceTimer;
+  textarea.addEventListener("input", () => {
+    const newBody = textarea.value;
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+      socket.emit("edit-body", { fileId, newBody });
+    }, 300);
+  });
+
+  socket.on("total-users", (total) => {
+    const globalCount = document.getElementById("global-count");
+    globalCount.textContent = `${total} people are online in server`;
   });
 </script>

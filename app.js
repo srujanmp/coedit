@@ -27,8 +27,17 @@ app.set("io", io);
 // Track users per file room
 const fileUsersMap = {}; // { fileId: [ { socketId, name } ] }
 
+count=0;
+
+// Utility function to broadcast total user count to all clients
+function broadcastUserCount() {
+  io.emit("total-users", count); // sends to everyone
+}
+
 io.on("connection", (socket) => {
-  console.log("User connected");
+  console.log("+");
+  count++;
+  broadcastUserCount();
 
   socket.on("join-file", ({ fileId, userName }) => {
     socket.join(fileId);
@@ -64,7 +73,9 @@ io.on("connection", (socket) => {
       );
     }
 
-    console.log("User disconnected");
+    console.log("-");
+    count--;
+    broadcastUserCount(); // update everyone on disconnect
   });
 });
 
