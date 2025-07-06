@@ -92,7 +92,7 @@ router.post("/file/:id/editors", async (req, res) => {
     await file.save();
   }
 
-  res.redirect(`/file/${file._id}`);
+  res.redirect(`/file/${file._id}/editors`);
 });
 
 

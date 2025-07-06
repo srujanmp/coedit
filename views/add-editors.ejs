@@ -1,4 +1,6 @@
+<link rel="stylesheet" href="/css/addeditor.css">
 <link rel="stylesheet" href="/css/common.css">
+
 
 <h1><a href="/file/<%= file._id %>" id="back-button">←</a> Add Editors</h1>
 
@@ -12,12 +14,14 @@
 <p>Current editors:</p>
 <ul>
   <% file.editors.forEach(email => { %>
-    <li style="margin-bottom: 8px;">
-      <%= email %>
-      <form action="/file/<%= file._id %>/editors/delete" method="POST" style="display:inline;">
+    <li>
+      <form action="/file/<%= file._id %>/editors/delete" method="POST" >
+        <%= email %>
         <input type="hidden" name="email" value="<%= email %>" />
         <button type="submit" style="margin-left: 10px;">Remove</button>
+
       </form>
+
     </li>
   <% }) %>
 </ul>
