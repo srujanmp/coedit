@@ -7,11 +7,24 @@ const fileSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    editors: [
+      {
+        type: String,
+        lowercase: true,
+        trim: true,
+      },
+    ],
+
     title: { type: String, required: true },
     header: String,
     body: String,
+    viewMode: {
+      type: String,
+      enum: ["public", "private"],
+      default: "public",
+    },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
 module.exports = mongoose.model("File", fileSchema);

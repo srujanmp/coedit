@@ -2,7 +2,10 @@
 <link rel="stylesheet" href="/css/home.css" />
 
 <h1>Welcome, <%= user.displayName %></h1>
-
+<h4 class="user-profile">
+  <img src="<%= user.photo %>" alt="User Photo">
+  <%= user.email %>
+</h4>
 <a id="logout" href="/logout">Logout</a>
 <br>
 <br>

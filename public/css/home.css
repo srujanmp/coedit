@@ -10,3 +10,31 @@
   background-color: #f0f0f0;
   border-radius: 10px;
 }
+
+
+a {
+  text-decoration: none;
+  color: purple;
+}
+
+/* User profile header styling */
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 20px;
+  font-weight: normal;
+}
+
+.user-profile img {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #ddd;
+  filter: grayscale(100%);
+}
+
+.user-profile {
+  color: #333;
+}

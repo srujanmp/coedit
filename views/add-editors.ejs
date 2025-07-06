@@ -1,0 +1,17 @@
+<link rel="stylesheet" href="/css/common.css">
+
+<h1><a href="/file/<%= file._id %>" id="back-button">←</a> Add Editors</h1>
+
+<p>File: <%= file.title %></p>
+
+<form method="POST" action="/file/<%= file._id %>/editors">
+  <input type="email" name="email" placeholder="Editor Email" required />
+  <button type="submit">Add Editor</button>
+</form>
+
+<p>Current editors:</p>
+<ul>
+  <% file.editors.forEach(email => { %>
+    <li><%= email %></li>
+  <% }) %>
+</ul>

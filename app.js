@@ -1,6 +1,6 @@
 const http = require("http");
 const { Server } = require("socket.io");
-
+const File = require("./model/File");
 require("dotenv").config();
 
 const mongoose = require("mongoose");
@@ -27,7 +27,7 @@ app.set("io", io);
 // Track users per file room
 const fileUsersMap = {}; // { fileId: [ { socketId, name } ] }
 
-count=0;
+count = 0;
 
 // Utility function to broadcast total user count to all clients
 function broadcastUserCount() {
@@ -35,35 +35,64 @@ function broadcastUserCount() {
 }
 
 io.on("connection", (socket) => {
-  // console.log("+");
   count++;
   broadcastUserCount();
 
-  socket.on("join-file", ({ fileId, userName }) => {
-    socket.join(fileId);
-    socket.fileId = fileId;
-    socket.userName = userName;
+socket.on("join-file", async ({ fileId, userName, userEmail }) => {
+  const file = await File.findById(fileId);
+  if (!file) return;
 
-    // Add user to the room map
-    if (!fileUsersMap[fileId]) fileUsersMap[fileId] = [];
-    fileUsersMap[fileId].push({ socketId: socket.id, name: userName });
+  const sessionUser = socket.request.session?.passport?.user;
+  const sessionUserId = typeof sessionUser === "string" ? sessionUser : sessionUser?._id?.toString();
 
-    // Notify all users in the room
-    io.to(fileId).emit(
-      "users-update",
-      fileUsersMap[fileId].map((u) => u.name)
-    );
-  });
+  const isAllowed =
+    file.viewMode === "public" ||
+    file.editors.includes(userEmail?.toLowerCase()) ||
+    file.owner.toString() === sessionUserId;
 
-  socket.on("edit-body", ({ fileId, newBody }) => {
-    socket.to(fileId).emit("body-updated", newBody);
-  });
+  if (!isAllowed) {
+    socket.emit("access-denied");
+    return;
+  }
+
+  socket.join(fileId);
+  socket.fileId = fileId;
+  socket.userName = userName;
+  socket.userEmail = userEmail?.toLowerCase();
+
+  if (!fileUsersMap[fileId]) fileUsersMap[fileId] = [];
+  fileUsersMap[fileId].push({ socketId: socket.id, name: userName });
+
+  io.to(fileId).emit(
+    "users-update",
+    fileUsersMap[fileId].map((u) => u.name)
+  );
+});
+
+socket.on("edit-body", async ({ fileId, newBody }) => {
+  const file = await File.findById(fileId);
+  const sessionUser = socket.request.session?.passport?.user;
+  const sessionUserId = typeof sessionUser === "string" ? sessionUser : sessionUser?._id?.toString();
+  const userEmail = socket.userEmail;
+
+  const isOwner = file && file.owner.toString() === sessionUserId;
+  const isEditor = file && file.editors.includes(userEmail);
+
+  if (isOwner || isEditor) {
+    io.to(fileId).emit("body-updated", newBody); // ✅ emit to all in room
+  } else {
+    console.warn(`Denied edit-body for socket ${socket.id}:`, {
+      fileId,
+      userEmail,
+      sessionUserId,
+    });
+  }
+});
+
 
   socket.on("disconnect", () => {
     const fileId = socket.fileId;
-    const name = socket.userName;
-
-    if (fileId && fileUsersMap[fileId]) {
+    if (fileUsersMap[fileId]) {
       fileUsersMap[fileId] = fileUsersMap[fileId].filter(
         (u) => u.socketId !== socket.id
       );
@@ -72,10 +101,8 @@ io.on("connection", (socket) => {
         fileUsersMap[fileId].map((u) => u.name)
       );
     }
-
-    // console.log("-");
     count--;
-    broadcastUserCount(); // update everyone on disconnect
+    broadcastUserCount();
   });
 });
 
@@ -86,18 +113,22 @@ app.set("views", __dirname + "/views");
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-  })
-);
+const sessionMiddleware = session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+});
 
+app.use(sessionMiddleware);
 // Passport setup
 setupPassport();
 app.use(passport.initialize());
 app.use(passport.session());
+
+// Attach session to Socket.io
+io.use((socket, next) => {
+  sessionMiddleware(socket.request, {}, next);
+});
 
 // Mount routes
 const authRoutes = require("./routes/auth");

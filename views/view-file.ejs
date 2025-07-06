@@ -1,126 +1,66 @@
-<link rel="stylesheet" href="/css/editor.css" />
-<link rel="stylesheet" href="/css/common.css" />
-<h1><a href="/" id="back-button">←</a><%= file.title %> : <%= file.header %></h1>
-<p>Owner: <%= file.owner.displayName %></p>
 
-<textarea id="file-body" rows="10" cols="80"><%= file.body %></textarea>
-<p id="status" style="color: gray">Status:</p>
-<div id="users" style="margin-top: 20px">
-  <strong>Live Users:</strong>
-  <ul id="user-list"></ul>
-</div>
-<p id="global-count" style="color: gray; margin-top: 10px"></p>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= file.title %> : <%= file.owner.displayName %></title>
+    <link rel="stylesheet" href="/css/editor.css" />
+    <link rel="stylesheet" href="/css/common.css" />
 
+    <!-- Header Section -->
+    <h1 class="page-title">
+        <a href="/" id="back-button">←</a>
+        <%= file.title %> : <%= file.header %>
+    </h1>
+    <h4 class="user-profile">
+   Owner: <img src="<%= file.owner.photo %>" alt="User Photo"><%= file.owner.displayName %>
+</h4>
 
-<img 
-  src="/assets/link.jpg" 
-  id="copy-link-btn" 
-  
-  title="Copy Link to Clipboard"
-/>
-<!-- Socket.IO -->
-<script src="/socket.io/socket.io.js"></script>
-<script>
-  const textarea = document.getElementById("file-body");
-  const status = document.getElementById("status");
-  const socket = io();
-  const fileId = "<%= file._id %>";
-  const userName = "<%= user?.displayName || 'Guest' %>"; // fallback for anonymous
+    <!-- Owner Controls -->
+    <% if (String(user._id) === String(file.owner._id)) { %>
+        <p class="editor-controls">
+            <a href="/file/<%= file._id %>/editors" id="add-editors-btn" class="add-editors-btn">
+                Add Editors
+            </a>
+        </p>
 
-  // Join file room with name
-  socket.emit("join-file", { fileId, userName });
+        <form id="viewModeForm" class="view-mode-form" action="/file/<%= file._id %>/viewmode" method="POST">
+            <select name="viewMode" id="viewModeSelect" class="view-mode-select">
+                <option value="public" <%= file.viewMode === 'public' ? 'selected' : '' %>>Public</option>
+                <option value="private" <%= file.viewMode === 'private' ? 'selected' : '' %>>Private</option>
+            </select>
+            <button type="submit" class="view-mode-button">Change</button>
+        </form>
+    <% } %>
 
-  // Update user list UI
-  socket.on("users-update", (names) => {
-    const list = document.getElementById("user-list");
-    list.innerHTML = "";
-    names.forEach((name) => {
-      const li = document.createElement("li");
-      li.textContent = name;
-      list.appendChild(li);
-    });
-  });
+    <!-- Editor Section -->
+    <textarea id="file-body" class="editor-textarea" rows="10" cols="80"><%= file.body %></textarea>
+    <p id="status" class="status-text">Status:</p>
 
-  // Emit changes on input
-  textarea.addEventListener("input", () => {
-    const newBody = textarea.value;
-    socket.emit("edit-body", { fileId, newBody });
-  });
+    <!-- Live Users Section -->
+    <div id="users" class="users-section">
+        <strong class="users-title">Live Users:</strong>
+        <ul id="user-list" class="user-list"></ul>
+    </div>
+    <p id="global-count" class="global-count"></p>
 
-  // ✅ Listen for updates from other users
-  socket.on("body-updated", (newBody) => {
-    textarea.value = newBody;
-  });
+    <!-- Copy Link Button -->
+    <img 
+        src="/assets/link.jpg" 
+        id="copy-link-btn" 
+        title="Copy Link to Clipboard"
+        style="cursor: pointer;"
+    />
 
-  // Save to DB on blur
-  textarea.addEventListener("blur", () => {
-    const updatedBody = textarea.value;
-
-    fetch(`/file/${fileId}/edit`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ body: updatedBody }),
-    })
-      .then((res) => {
-        if (res.ok) {
-          status.textContent = "Status: Saved";
-          setTimeout(() => (status.textContent = "Status:"), 1200);
-        } else {
-          status.textContent = "Error saving.";
-        }
-      })
-      .catch((err) => {
-        console.error(err);
-        status.textContent = "Status: Save failed";
-      });
-  });
-
-  let debounceTimer;
-  textarea.addEventListener("input", () => {
-    const newBody = textarea.value;
-    clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => {
-      socket.emit("edit-body", { fileId, newBody });
-    }, 300);
-  });
-
-  socket.on("total-users", (total) => {
-    const globalCount = document.getElementById("global-count");
-    globalCount.textContent = `${total} people are online in server`;
-  });
-</script>
-
-
-<script>
-  const copyBtn = document.getElementById('copy-link-btn');
-
-  copyBtn.addEventListener('click', () => {
-    // The link you want to copy — change as needed
-    const linkToCopy = window.location.href;
-
-    // Use the Clipboard API if available
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(linkToCopy)
-        .then(() => {
-        })
-        .catch(err => {
-          alert('Failed to copy link.');
-          console.error(err);
-        });
-    } else {
-      // Fallback for older browsers
-      const tempInput = document.createElement('input');
-      tempInput.value = linkToCopy;
-      document.body.appendChild(tempInput);
-      tempInput.select();
-      try {
-        document.execCommand('copy');
-      } catch (err) {
-        alert('Failed to copy link.');
-      }
-      document.body.removeChild(tempInput);
-    }
-  });
-</script>
+    <!-- Socket.IO -->
+    <script src="/socket.io/socket.io.js"></script>
+    
+    <!-- Pass server data to client -->
+    <script>
+        window.fileData = {
+            fileId: "<%= file._id %>",
+            userName: "<%= user?.displayName || 'Guest' %>",
+            userEmail: "<%= user?.email || '' %>"
+        };
+    </script>
+    
+    <!-- Main Editor Logic -->
+    <script src="/js/editor.js"></script>

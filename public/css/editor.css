@@ -1,10 +1,55 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 
+/* UI Elements with small font sizes */
 
-#file-body {
+
+.owner-info,
+
+.editor-controls,
+
+.add-editors-btn,
+
+.view-mode-form ,
+
+.view-mode-select ,
+.view-mode-button {
+  font-size: small;
+}
+
+
+
+.status-text,
+.users-section,
+.users-title,
+.user-list {
+  margin: 0;
+  margin-left: 0px;
+  font-size: small;
+}
+
+.status-text,
+.users-section{
+  margin-left: 10px;
+}
+
+
+.status-text {
+  color: gray;
+}
+
+.global-count {
+  font-size: xx-small;
+  color: gray;
+  margin-top: 10px;
+  margin-left: 10px;
+}
+
+/* Main textarea - keeping original styling */
+.editor-textarea {
+  /* margin-top: 20px; */
   width: 100%;
   height: 40%;
-   font-family: "Space Mono", monospace;
+  font-family: "Space Mono", monospace;
   font-weight: 400;
   font-style: normal;
   font-size: 15px;
@@ -21,7 +66,7 @@
   white-space: pre;
 }
 
-#file-body:focus {
+.editor-textarea:focus {
   border-color: #007acc;
   box-shadow: 0 0 6px #007acc66;
 }
@@ -31,8 +76,9 @@
   color: #ffffff;
 }
 
-
+/* Copy link button */
 #copy-link-btn {
+  margin-top: 10px;
   position: fixed;
   top: 10px;
   right: 10px;
@@ -40,23 +86,59 @@
   height: 40px;
   cursor: pointer;
   z-index: 1000;
-
   border: 2px solid black;
   border-radius: 50%;
   box-sizing: border-box;
-
-  /* From #back-button */
   display: inline-block;
   font-size: 18px;
   font-weight: bold;
-  line-height: 40px;           /* Match height for vertical centering */
+  line-height: 40px;
   text-align: center;
   color: black;
-
   transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
 #copy-link-btn:hover {
   background-color: #f0f0f0;
   transform: scale(1.05);
+}
+
+/* Add Editors button styling */
+.add-editors-btn ,.view-mode-select ,
+.view-mode-button{
+  display: inline-block;
+  padding: 2px 4px;
+  border: 1px solid black;
+  background-color: white;
+  text-decoration: none;
+  color: black;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.add-editors-btn:hover ,.view-mode-select:hover ,
+.view-mode-button:hover   {
+  background-color: #f0f0f0;
+  transform: scale(1.001);
+}
+
+/* User profile header styling */
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 20px;
+  font-weight: normal;
+}
+
+.user-profile img {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #ddd;
+  filter: grayscale(100%);
+}
+
+.user-profile {
+  color: #333;
 }
