@@ -11,6 +11,13 @@
 </div>
 <p id="global-count" style="color: gray; margin-top: 10px"></p>
 
+
+<img 
+  src="/assets/link.jpg" 
+  id="copy-link-btn" 
+  
+  title="Copy Link to Clipboard"
+/>
 <!-- Socket.IO -->
 <script src="/socket.io/socket.io.js"></script>
 <script>
@@ -82,5 +89,38 @@
   socket.on("total-users", (total) => {
     const globalCount = document.getElementById("global-count");
     globalCount.textContent = `${total} people are online in server`;
+  });
+</script>
+
+
+<script>
+  const copyBtn = document.getElementById('copy-link-btn');
+
+  copyBtn.addEventListener('click', () => {
+    // The link you want to copy — change as needed
+    const linkToCopy = window.location.href;
+
+    // Use the Clipboard API if available
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(linkToCopy)
+        .then(() => {
+        })
+        .catch(err => {
+          alert('Failed to copy link.');
+          console.error(err);
+        });
+    } else {
+      // Fallback for older browsers
+      const tempInput = document.createElement('input');
+      tempInput.value = linkToCopy;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      try {
+        document.execCommand('copy');
+      } catch (err) {
+        alert('Failed to copy link.');
+      }
+      document.body.removeChild(tempInput);
+    }
   });
 </script>
