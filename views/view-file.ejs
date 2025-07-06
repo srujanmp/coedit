@@ -1,5 +1,6 @@
-<h1><%= file.title %></h1>
-<h3><%= file.header %></h3>
+<link rel="stylesheet" href="/css/editor.css" />
+<link rel="stylesheet" href="/css/common.css" />
+<h1><a href="/" id="back-button">←</a><%= file.title %> : <%= file.header %></h1>
 <p>Owner: <%= file.owner.displayName %></p>
 
 <textarea id="file-body" rows="10" cols="80"><%= file.body %></textarea>

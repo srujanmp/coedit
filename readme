@@ -1,0 +1,5 @@
+so this doesnt work like datatabse and only in frontend what happens is we always use the github theme... tell me how i can apply github theme to this text box only.. there must be a dropdown to select from a list of languages and each of them changes the look of the editor textbox
+
+without any chnages to server backend .. find a way to help me get the aldready existing opensource vs code theme that i can apply to this textbox
+
+for now keep langauges option as text default, java, pyhton, js and html

@@ -35,7 +35,7 @@ function broadcastUserCount() {
 }
 
 io.on("connection", (socket) => {
-  console.log("+");
+  // console.log("+");
   count++;
   broadcastUserCount();
 
@@ -73,7 +73,7 @@ io.on("connection", (socket) => {
       );
     }
 
-    console.log("-");
+    // console.log("-");
     count--;
     broadcastUserCount(); // update everyone on disconnect
   });
