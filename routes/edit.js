@@ -121,5 +121,40 @@ router.post("/file/:id/viewmode", async (req, res) => {
   }
 });
 
+// DELETE FILE (only owner)
+router.post("/file/:id/delete", async (req, res) => {
+  const file = await File.findById(req.params.id);
+  if (!file) return res.status(404).send("File not found");
+
+  if (!file.owner.equals(req.user._id)) {
+    return res.status(403).send("Only the owner can delete the file");
+  }
+
+  await file.deleteOne();
+  await User.findByIdAndUpdate(req.user._id, {
+    $pull: { files: file._id }
+  });
+
+  res.redirect("/");
+});
+
+// REMOVE EDITOR (only owner)
+router.post("/file/:id/editors/delete", async (req, res) => {
+  const file = await File.findById(req.params.id);
+  if (!file) return res.status(404).send("File not found");
+
+  if (!file.owner.equals(req.user._id)) {
+    return res.status(403).send("Only the owner can remove editors");
+  }
+
+  const editorToRemove = req.body.email?.toLowerCase().trim();
+  if (!editorToRemove) return res.status(400).send("Email required");
+
+  file.editors = file.editors.filter(email => email !== editorToRemove);
+  await file.save();
+
+  res.redirect(`/file/${file._id}/editors`);
+});
+
 
 module.exports = router;

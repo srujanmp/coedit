@@ -164,7 +164,7 @@ class CollaborativeEditor {
             // Use modern Clipboard API if available
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 await navigator.clipboard.writeText(linkToCopy);
-                this.showCopyFeedback("Link copied to clipboard!");
+                this.showCopyFeedback("Link copied");
             } else {
                 // Fallback for older browsers
                 this.fallbackCopyToClipboard(linkToCopy);
@@ -184,7 +184,7 @@ class CollaborativeEditor {
         try {
             const successful = document.execCommand('copy');
             if (successful) {
-                this.showCopyFeedback("Link copied to clipboard!");
+                this.showCopyFeedback("Link copied");
             } else {
                 this.showCopyFeedback("Failed to copy link", true);
             }
@@ -203,7 +203,7 @@ class CollaborativeEditor {
             position: fixed;
             top: 20px;
             right: 20px;
-            background: ${isError ? '#ff4444' : '#4CAF50'};
+            background: ${isError ? '#808080' : '#808080'};
             color: white;
             padding: 10px 15px;
             border-radius: 4px;

@@ -12,6 +12,13 @@
 <p>Current editors:</p>
 <ul>
   <% file.editors.forEach(email => { %>
-    <li><%= email %></li>
+    <li style="margin-bottom: 8px;">
+      <%= email %>
+      <form action="/file/<%= file._id %>/editors/delete" method="POST" style="display:inline;">
+        <input type="hidden" name="email" value="<%= email %>" />
+        <button type="submit" style="margin-left: 10px;">Remove</button>
+      </form>
+    </li>
   <% }) %>
 </ul>
+

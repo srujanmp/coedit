@@ -50,6 +50,17 @@
         style="cursor: pointer;"
     />
 
+
+
+    <% if (String(user._id) === String(file.owner._id)) { %>
+  <form method="POST" action="/file/<%= file._id %>/delete" onsubmit="return confirm('Are you sure ?');" style="position: fixed; bottom: 5px; right: 20px;">
+    <button type="submit" style="padding: 5px; background-color: rgb(96, 96, 96); color: white;border-radius: 5px;">
+      🗑️ Delete File
+    </button>
+  </form>
+<% } %>
+
+
     <!-- Socket.IO -->
     <script src="/socket.io/socket.io.js"></script>
     
