@@ -129,7 +129,8 @@
 /* Add Editors button styling */
 .add-editors-btn,
 .view-mode-select,
-.view-mode-button {
+.view-mode-button,
+#gemini button {
   display: inline-block;
   padding: 2px 4px;
   border: 1px solid black;
@@ -166,4 +167,37 @@
 
 .user-profile {
   color: #333;
+}
+
+/* centre the div */
+make the elements inside the div touch the edges of the div
+#users {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-top: 20px;
+}
+#gemini{
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content:stretch;
+  width: 100%;
+}
+#gemini input[type="text"] {
+  
+  flex-grow: 1;
+  margin-right: 10px;
+}
+
+#gemini button {
+  margin-right: 10px;
+  color: white;
+  background-color: #1c1c1c;
+}
+
+#gemini button:hover {
+  background-color: #2a2a2a;
 }

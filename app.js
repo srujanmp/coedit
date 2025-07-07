@@ -138,6 +138,8 @@ const adminRoutes = require("./routes/admin");
 app.use(ensureAuth, adminRoutes);
 const editRoutes = require("./routes/edit");
 app.use(ensureAuth, editRoutes);
+const geminiRoutes = require("./routes/gemini");
+app.use(ensureAuth, geminiRoutes);
 
 // Middleware to check authentication
 function ensureAuth(req, res, next) {

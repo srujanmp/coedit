@@ -31,9 +31,21 @@
         </form>
     <% } %>
 
+
+<form id="gemini-form" method="POST" action="/file/<%= file._id %>/gemini">
     <!-- Editor Section -->
-    <textarea id="file-body" class="editor-textarea" rows="10" cols="80"><%= file.body %></textarea>
-    <p id="status" class="status-text">Status:</p>
+    <textarea name="body" id="file-body" class="editor-textarea" rows="10" cols="80"><%= file.body %></textarea>
+    
+
+    <!-- Gemini Tool Form -->
+     <div id="gemini">
+
+         <button type="submit">🪄Enhance</button>
+         <input type="text" name="prompt" id="prompt" required placeholder="Enter your prompt" style="width: 60%;" />
+     </div>
+</form>
+
+<p id="status" class="status-text">Status:</p>
 
     <!-- Live Users Section -->
     <div id="users" class="users-section">
@@ -50,6 +62,8 @@
         style="cursor: pointer;"
     />
 
+    
+
 
 
     <% if (String(user._id) === String(file.owner._id)) { %>
@@ -59,6 +73,9 @@
     </button>
   </form>
 <% } %>
+
+
+
 
 
     <!-- Socket.IO -->
