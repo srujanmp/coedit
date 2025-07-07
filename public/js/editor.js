@@ -12,12 +12,15 @@ class CollaborativeEditor {
     }
 
     initializeElements() {
+
         this.textarea = document.getElementById("file-body");
         this.status = document.getElementById("status");
         this.copyBtn = document.getElementById('copy-link-btn');
         this.userList = document.getElementById("user-list");
         this.globalCount = document.getElementById("global-count");
-        
+        this.downloadBtn = document.getElementById("download-btn");
+
+
         // Get data passed from server
         this.fileData = window.fileData || {};
         this.fileId = this.fileData.fileId;
@@ -76,6 +79,12 @@ class CollaborativeEditor {
         this.copyBtn.addEventListener('click', () => {
             this.copyLinkToClipboard();
         });
+
+        // Download functionality
+        this.downloadBtn.addEventListener("click", () => {
+            this.downloadFile();
+        });
+
     }
 
     updateUserList(names) {
@@ -92,7 +101,7 @@ class CollaborativeEditor {
             // Store cursor position
             const cursorPos = this.textarea.selectionStart;
             this.textarea.value = newBody;
-            
+
             // Restore cursor position if possible
             if (cursorPos <= newBody.length) {
                 this.textarea.setSelectionRange(cursorPos, cursorPos);
@@ -112,11 +121,11 @@ class CollaborativeEditor {
 
     handleTextareaInput() {
         const newBody = this.textarea.value;
-        
+
         // Emit real-time changes
-        this.socket.emit("edit-body", { 
-            fileId: this.fileId, 
-            newBody 
+        this.socket.emit("edit-body", {
+            fileId: this.fileId,
+            newBody
         });
 
         // Clear any existing debounce timer
@@ -130,10 +139,10 @@ class CollaborativeEditor {
 
     async saveToDatabase() {
         const updatedBody = this.textarea.value;
-        
+
         try {
             this.status.textContent = "Status: Saving...";
-            
+
             const response = await fetch(`/file/${this.fileId}/edit`, {
                 method: "POST",
                 headers: {
@@ -180,7 +189,7 @@ class CollaborativeEditor {
         tempInput.value = text;
         document.body.appendChild(tempInput);
         tempInput.select();
-        
+
         try {
             const successful = document.execCommand('copy');
             if (successful) {
@@ -191,7 +200,7 @@ class CollaborativeEditor {
         } catch (error) {
             this.showCopyFeedback("Failed to copy link", true);
         }
-        
+
         document.body.removeChild(tempInput);
     }
 
@@ -202,23 +211,37 @@ class CollaborativeEditor {
         feedback.style.cssText = `
             position: fixed;
             top: 20px;
-            right: 20px;
+            right: 10px;
             background: ${isError ? '#808080' : '#808080'};
             color: white;
             padding: 10px 15px;
             border-radius: 4px;
             z-index: 1000;
             font-size: 14px;
+            margin-top:45px;
         `;
-        
+
         document.body.appendChild(feedback);
-        
-        // Remove feedback after 2 seconds
+
+        // Remove feedback after 0.5 seconds
         setTimeout(() => {
             if (feedback.parentNode) {
                 feedback.parentNode.removeChild(feedback);
             }
-        }, 2000);
+        }, 500);
+    }
+    downloadFile() {
+        const textContent = this.textarea.value;
+        const blob = new Blob([textContent], { type: "text/plain" });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${this.fileData.fileName || "document"}.txt`; // default fallback
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
     }
 }
 
