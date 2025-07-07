@@ -44,7 +44,32 @@ async function newInfo(text) {
   return response.text;
 }
 
+async function translate(text, targetLang) {
+  const response = await ai.models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: [
+      {
+        role: "user",
+        parts: [
+          {
+            text: `Translate the following text to ${targetLang}: ${text}`,
+          },
+        ],
+      },
+    ],
+    config: {
+      responseMimeType: "application/json",
+      responseSchema: {
+        type: Type.STRING,
+      },
+    },
+  });
+
+  return response.text;
+}
+
 module.exports = {
   grammer,
   newInfo,
+  translate,
 };
