@@ -1,3 +1,125 @@
 to be added:
-theme
-language selection
+* theme
+* language selection
+
+
+---
+
+### [auth.js]
+
+**Authentication:**
+- `GET /`  
+  Show login page (redirects to `/home` if authenticated)
+- `GET /auth/google`  
+  Start Google OAuth login
+- `GET /auth/google/callback`  
+  Google OAuth callback, redirects to `/home` on success
+- `GET /logout`  
+  Logout user and destroy session
+
+---
+
+### [admin.js]
+
+**Home & Admin:**
+- `GET /home`  
+  Show all files owned by the current user
+- `GET /admin/cook`  
+  Protected admin route (simple message)
+
+---
+
+### [edit.js]
+
+**File CRUD & Collaboration:**
+- `GET /file/new`  
+  Show form to create a new file
+- `POST /file`  
+  Create a new file
+- `GET /file/:id`  
+  View a file (with authorization)
+- `POST /file/:id/edit`  
+  Edit file body (AJAX, with authorization)
+- `GET /file/:id/editors`  
+  Show "Add Editors" page (owner only)
+- `POST /file/:id/editors`  
+  Add an editor by email (owner only)
+- `POST /file/:id/viewmode`  
+  Change file view mode (public/private, owner only)
+- `POST /file/:id/delete`  
+  Delete a file (owner only)
+- `POST /file/:id/editors/delete`  
+  Remove an editor by email (owner only)
+
+---
+
+### [gemini.js]
+
+**Gemini AI Integration:**
+- `POST /file/:id/gemini`  
+  Process file body with Gemini AI and update file (if result is not "no_function")
+
+---
+
+**Features Summary:**
+- Google OAuth authentication
+- User session management
+- File creation, viewing, editing, and deletion
+- File sharing/collaboration via editor email list
+- File privacy (public/private view mode)
+- Real-time editing via Socket.IO (not a REST API, but a feature)
+- Gemini AI integration for file content
+- Admin-only route (example/protected page)
+
+
+- **Google OAuth authentication**  
+  Handled via passport.js and the login flow in login.ejs.
+
+- **User session management**  
+  Managed using `express-session` and Passport, with session data available for authentication and authorization.
+
+- **File creation, viewing, editing, and deletion**  
+  Supported by forms and UI in new-file.ejs, view-file.ejs, and logic in routes.
+
+- **File sharing/collaboration via editor email list**  
+  UI for adding/removing editors in add-editors.ejs. Only owners can manage editors.
+
+- **File privacy (public/private view mode)**  
+  Owners can toggle privacy in view-file.ejs via a dropdown.
+
+- **Real-time editing via Socket.IO**  
+  Collaborative editing is implemented in editor.js, with live user tracking and content updates.
+
+- **Gemini AI integration for file content**  
+  The Gemini AI tools in gemini.js and tools.js provide:
+  - Grammar correction
+  - Generating new information about file content
+  - Translation to other languages  
+  The UI for Gemini prompts is in view-file.ejs.
+
+- **Admin-only route (example/protected page)**  
+  `/admin/cook` is a protected route for demonstration.
+
+**Additional features found:**
+
+- **Live user tracking per file**  
+  The editor shows a list of users currently viewing/editing a file (see view-file.ejs and `public/js/editor.js`).
+
+- **Copy file link and download file**  
+  Users can copy the file link or download the file as text from the editor page.
+
+- **Status feedback for editing**  
+  The editor provides real-time status updates (e.g., "Typing...", "Saved", "Read-only access").
+
+- **Owner-only controls**  
+  Only file owners can delete files, change privacy, or manage editors (enforced in both UI and backend).
+
+- **Responsive and accessible UI**  
+  EJS templates use semantic HTML and CSS for a user-friendly interface.
+
+You can see these features in the following files:
+- gemini.js
+- tools.js
+- view-file.ejs
+- add-editors.ejs
+- editor.js
